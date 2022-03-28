@@ -99,6 +99,29 @@
 
     </form>
 
+    <div class="mt-5 .text-primary" *ngIf="findPercentile(this.monthBasedPercentile)">
+        <h5 class="p-3 mb-2 bg-info text-white"><strong>{{this.childDetail.childName}}</strong> is {{this.ageInMonth}}
+            month old and is in the <strong>{{this.percentile}}</strong> percentile
+            for {{this.childDetail.gender === 'Male' ? 'his' : 'her'}} weight which is
+            {{this.childWeightinKg}}kg
+        </h5>
+        <Span class="mt-2">
+            Note: The lower the percentile number, the smaller the child is. For example, if a 6 month-old boy's weight
+            is
+            in the 10th percentile, that means that 10% of boys that age weigh less than he does and 90% of 6 month-old
+            boys
+            weigh more.
+        </Span>
+    </div>
+</body>
+
+</html>
+
+
+
+
+
+<!-- 
     <table class="table" *ngIf="submitted">
         <thead>
             <tr>
@@ -121,7 +144,7 @@
         </tr>
     </table>
 
-    <!-- 
+    
     <div class="studentList" *ngFor="let item of dataValues">
         <ul>
             <li>{{ item.value }}</li>
@@ -131,27 +154,16 @@
 
 
 
-    <!-- <ul *ngFor="let data of  this.percentileValues ">
+<!-- <ul *ngFor="let data of  this.monthBasedPercentile ">
         <li *ngFor="let child of data  | keyvalue">
-        
+
             {{child.key}} : <strong>{{child.value}}</strong>
-    
+
         </li>
         {{data |json}}
 
-    </ul> 
+    </ul>
 
     <ul *ngFor="let data of  this.monthBasedPercentile  | keyvalue ">
-            {{data.key}} : <strong>{{data.value}}</strong>
-    </ul>-->
-
-    <div class="mt-5 .text-primary" *ngIf="findPercentile(this.monthBasedPercentile)">
-        <h5 class="p-3 mb-2 bg-info text-white"><strong>{{this.childDetail.childName}}</strong> is in the
-            <strong>{{this.percentile}}</strong> percentile
-            for weight
-        </h5>
-    </div>
-
-</body>
-
-</html>
+        {{data.key}} : <strong>{{data.value}}</strong>
+    </ul> -->

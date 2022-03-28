@@ -23,7 +23,7 @@ export class GrowthChart implements OnInit {
     percentile: string = "";
     percentileResult: string = "";
     monthBasedPercentile: any;
-
+    ageInMonth: any;
     growthChart: GrowthChart = {} as GrowthChart;
     maxDate: Date = new Date();
 
@@ -46,13 +46,13 @@ export class GrowthChart implements OnInit {
             if (this.childDetail.dateOfBirth === undefined)
                 return;
 
-            var ageInMonth = this.calculateMonthfromDOB(this.childDetail.dateOfBirth);
-            if (ageInMonth > 60) {
+            this.ageInMonth = this.calculateMonthfromDOB(this.childDetail.dateOfBirth);
+            if (this.ageInMonth > 60) {
                 alert("Baby's age should not be more than 5 years");
                 return;
             }
 
-            this.readExcelSheet(this.childDetail.gender, ageInMonth);
+            this.readExcelSheet(this.childDetail.gender, this.ageInMonth);
 
             console.log(login);
             console.log(this.childDetail.childName + " " + this.childDetail.dateOfBirth + " " + this.childDetail.dateOfMeasurement + " " + this.childDetail.gender
@@ -97,12 +97,12 @@ export class GrowthChart implements OnInit {
         }
         var valueItem = this.GetClosetpercentileValue(this.childWeightinKg, percentileArrayValues);
 
+
         // Find percentile based on it's value
         var keyItem = Object.keys(percentileValues).find(key => percentileValues[key] === valueItem);
         if (keyItem == undefined) {
             return false;
         }
-
         this.percentile = keyItem?.toString().replace('P', '');
         return true;
     }
@@ -155,8 +155,8 @@ export class ChildDetail {
 
 
 export const WeighUnitItems = [
-    { Id: 1, DisplayValue: 'lb' },
-    { Id: 2, DisplayValue: 'kg' }
+    { Id: 1, DisplayValue: 'kg' },
+    { Id: 2, DisplayValue: 'lb' }
 
 ];
 
