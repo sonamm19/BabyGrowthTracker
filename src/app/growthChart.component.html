@@ -71,6 +71,10 @@
             <div class="text-danger" *ngIf="!measurementDate.untouched && measurementDate.errors?.['required']">
                 Select measurement date
             </div>
+            <div class="text-danger" *ngIf="measurementDate.value < birthDate.value">
+                measurement date should be after birth date
+
+            </div>
         </div>
 
         <div class="mb-3">
