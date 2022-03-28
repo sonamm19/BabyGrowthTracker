@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Hello, world!</title>
+</head>
+
+<body>
+
+
+    <form class="w-25 p-3" #login="ngForm" (ngSubmit)="Submit(login)">
+        <div class="mb-3">
+            <span class="text-danger p-1">*</span>
+            <label for="childName" class="form-label">Child's
+                name</label>
+            <input type="text" class="form-control" #childName="ngModel" [(ngModel)]="childDetail.childName"
+                name="childName" required>
+
+            <div class="text-danger" *ngIf="!childName.untouched && childName?.errors?.['required']">Child name
+                should not be empty.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <span class="text-danger p-1">*</span>
+            <label for="childSex" class="form-label">Sex</label>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <input class="form-check-input" type="radio" name="gender" #gender="ngModel"
+                                [(ngModel)]='childDetail.gender' value="Male" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-check-label" for="radioMale">Male</label>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <input class="form-check-input" type="radio" name="gender" #gender="ngModel"
+                                [(ngModel)]='childDetail.gender' value="Female" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-check-label" for="radioFemale">Female</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-danger" *ngIf="!gender.untouched && gender.errors?.['required']">Select gender</div>
+        </div>
+
+
+        <div class="mb-3">
+            <span class="text-danger p-1">*</span>
+            <label for="birthDate" class="form-label">Date of birth</label>
+            <input type="date" #birthDate="ngModel" class="form-control" name="birthDate"
+                [(ngModel)]='childDetail.dateOfBirth' max="{{maxDate | date:'yyyy-MM-dd'}}" required>
+            <div class="text-danger" *ngIf="!birthDate.untouched && birthDate.errors?.['required']">Select birth
+                date</div>
+        </div>
+
+        <div class="mb-3">
+            <span class="text-danger p-1">*</span>
+            <label for="measurementDate" class="form-label">Date of measurement</label>
+            <input type="date" #measurementDate="ngModel" class="form-control" name="measurementDate"
+                [(ngModel)]='childDetail.dateOfMeasurement' max="{{maxDate | date:'yyyy-MM-dd'}}" required>
+
+            <div class="text-danger" *ngIf="!measurementDate.untouched && measurementDate.errors?.['required']">
+                Select measurement date
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <span class="text-danger p-1">*</span>
+            <label for="weight" class="form-label">Weight</label>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" #weight="ngModel" class="form-control" name="weight"
+                        [(ngModel)]='childDetail.weight' required>
+                </div>
+                <div class="col-md-4 offset-0">
+                    <select name="weightUnit" class="form-control" name="weightUnit"
+                        [(ngModel)]='childDetail.selectedWeightUnit'>
+                        <option *ngFor="let item of childDetail.weightUnitMatric" [ngValue]="item">
+                            {{item.DisplayValue}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-danger" *ngIf="!weight.untouched && weight.errors?.['required']">Enter Weight</div>
+        </div>
+        <div class="mb-6">
+            <button type="submit" [disabled]="login.invalid" class="btn btn-primary">Submit</button>
+        </div>
+
+    </form>
+
+    <table class="table" *ngIf="submitted">
+        <thead>
+            <tr>
+                <th class="col-1">Child Name</th>
+                <th class="col-1">Gender</th>
+                <th class="col-1">Date of Birth</th>
+                <th class="col-1">Date of Measurement</th>
+                <th class="col-1">Weight</th>
+
+            </tr>
+        </thead>
+        <tr>
+            <td class="col-1">{{childDetail.childName}}</td>
+            <td class="col-1">{{childDetail.gender}}</td>
+            <td class="col-1">{{childDetail.dateOfBirth}}</td>
+            <td class="col-1">{{childDetail.dateOfMeasurement}}</td>
+            <td class="col-1">{{childDetail.weight}}({{childDetail.selectedWeightUnit.DisplayValue}})
+                <span *ngIf="childDetail.selectedWeightUnit.DisplayValue === 'lb'">{{childWeightinKg}}(kg)</span>
+            </td>
+        </tr>
+    </table>
+
+    <!-- 
+    <div class="studentList" *ngFor="let item of dataValues">
+        <ul>
+            <li>{{ item.value }}</li>
+
+        </ul>
+    </div> -->
+
+
+
+    <!-- <ul *ngFor="let data of  this.percentileValues ">
+        <li *ngFor="let child of data  | keyvalue">
+        
+            {{child.key}} : <strong>{{child.value}}</strong>
+    
+        </li>
+        {{data |json}}
+
+    </ul> 
+
+    <ul *ngFor="let data of  this.monthBasedPercentile  | keyvalue ">
+            {{data.key}} : <strong>{{data.value}}</strong>
+    </ul>-->
+
+    <div class="mt-5 .text-primary" *ngIf="findPercentile(this.monthBasedPercentile)">
+        <h5 class="p-3 mb-2 bg-info text-white"><strong>{{this.childDetail.childName}}</strong> is in the
+            <strong>{{this.percentile}}</strong> percentile
+            for weight
+        </h5>
+    </div>
+
+</body>
+
+</html>

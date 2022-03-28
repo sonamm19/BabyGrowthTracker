@@ -1,0 +1,35 @@
+<form class="form" [formGroup]="form" (ngSubmit)="Submit()">
+    <div class="form-group">
+        <label for="firstName" class="form-label">First Name</label>
+        <input type="text" formControlName="firstName" minlength="3">
+        <span class="text-danger">
+            <div *ngIf="form.controls['firstName'].touched  && form.controls['firstName'].errors?.['required']">
+                First name is required
+            </div>
+            <div *ngIf="form.controls['firstName'].hasError('minlength')">
+                Name must be at least {{ form.controls['firstName'].errors?.['minlength'].requiredLength }} characters
+                long.
+            </div>
+        </span>
+    </div>
+
+    <div class="form-group">
+        <label for="firstName" class="form-label">Last Name</label>
+        <input class="mt-2" type="text" formControlName="lastName">
+        <span class="text-danger">
+            <div *ngIf="form.controls['lastName'].touched  && form.controls['lastName'].errors?.['required']">
+                Last name is required
+            </div>
+        </span>
+    </div>
+
+
+
+    <div class="form-group">
+        <button type="submit">Submit</button>
+    </div>
+
+    <div *ngIf="isFormSubmitted">
+        {{form.value.firstName}} {{form.value.lastName}}
+    </div>
+</form>
