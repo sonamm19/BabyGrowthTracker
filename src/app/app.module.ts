@@ -8,6 +8,7 @@ import { OrdinalPipe } from './ordinal.pipe';
 import { ReactiveForm } from './reactiveForm.component';
 import { BubbleChartComponent } from './bubble-chart/bubble-chart.component';
 import { ChartsModule } from 'ng2-charts';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
     declarations: [AppComponent, GrowthChart, OrdinalPipe, ReactiveForm, BubbleChartComponent],
@@ -17,7 +18,7 @@ import { ChartsModule } from 'ng2-charts';
         HttpClientModule,
         ReactiveFormsModule,
         ChartsModule],
-
+    providers: [DatePipe],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

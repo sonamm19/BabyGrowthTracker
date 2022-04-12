@@ -1,25 +1,32 @@
-import { DecimalPipe } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
-import { WeightPercentileCacheService } from "./app.weightPercentileCache.service";
+import { DatePipe } from '@angular/common';
+import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import * as XLSX from 'xlsx';
 import { HttpClient } from '@angular/common/http';
-
-
+import { NgForm } from '@angular/forms';
 @Component({
 
     selector: 'growth-chart',
-    templateUrl: './growthChart.component.html',
-    providers: [WeightPercentileCacheService]
+    templateUrl: './growthChart.component.html'
 })
 
 
 export class GrowthChart implements OnInit {
 
+    @ViewChild('login', { static: true }) login: NgForm | undefined;
+
+    // Child Details
+    childName: string = "";
+    gender: string = "";
+    dateOfBirth: any;
+    dateOfMeasurement: any;
+    weight: string = "";
+    selectedWeightUnit: any;
+    weightUnitMatric: any;
+
     public selectedValue: any;
     filePath: string = "";
     submitted: boolean = false;
-    childDetail = new ChildDetail();
-    childWeightinKg: any;
+    childWeightinKg: any = 0;
     percentile: string = "";
     percentileResult: string = "";
     monthBasedPercentile: any;
@@ -27,36 +34,37 @@ export class GrowthChart implements OnInit {
     growthChart: GrowthChart = {} as GrowthChart;
     maxDate: Date = new Date();
 
-    constructor(private httpClient: HttpClient) {
-        console.log("inside constructor");
+    constructor(private httpClient: HttpClient, public datePipe: DatePipe) {
+        console.log("inside constructor" + this.login);
     }
 
     ngOnInit(): void {
-        this.childDetail.gender = "Male";
-        this.childDetail.weightUnitMatric = WeighUnitItems;
-        this.childDetail.selectedWeightUnit = this.childDetail.weightUnitMatric[0];
+        this.gender = "Male";
+        this.weightUnitMatric = WeighUnitItems;
+        this.selectedWeightUnit = this.weightUnitMatric[0];
 
+        this.dateOfMeasurement = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
     }
-
 
     Submit(login: any) {
 
+        console.log(login);
         if (login.valid) {
 
-            if (this.childDetail.dateOfBirth === undefined)
+            if (this.dateOfBirth === undefined)
                 return;
 
-            this.ageInMonth = this.calculateMonthfromDOB(this.childDetail.dateOfBirth);
+            this.ageInMonth = this.calculateMonthfromDOB(this.dateOfBirth);
             if (this.ageInMonth > 60) {
                 alert("Baby's age should not be more than 5 years");
                 return;
             }
-
-            this.readExcelSheet(this.childDetail.gender, this.ageInMonth);
+            this.ConvertWeightInKg();
+            this.readExcelSheet(this.gender, this.ageInMonth);
 
             console.log(login);
-            console.log(this.childDetail.childName + " " + this.childDetail.dateOfBirth + " " + this.childDetail.dateOfMeasurement + " " + this.childDetail.gender
-                + " " + this.childDetail.weight + "(" + this.childDetail.selectedWeightUnit.DisplayValue + ")");
+            console.log(this.childName + " " + this.dateOfBirth + " " + this.dateOfMeasurement + " " + this.gender
+                + " " + this.weight + "(" + this.selectedWeightUnit.DisplayValue + ")");
 
             console.log(this.monthBasedPercentile);
             this.submitted = true;
@@ -74,6 +82,13 @@ export class GrowthChart implements OnInit {
         return output;
     }
 
+    ConvertWeightInKg() {
+        this.childWeightinKg = this.weight;
+        if (this.selectedWeightUnit.DisplayValue === "lb") {
+            this.childWeightinKg = (this.childWeightinKg * 0.45359237).toFixed(2);
+        }
+    }
+
     /*
     |P01  P1	P3	 P5	  P10|
     |2	  2.3	2.5	 2.6  2.8|
@@ -82,12 +97,6 @@ export class GrowthChart implements OnInit {
 
         if (percentileValues === undefined)
             return false;
-
-        // Covert lb to kg.
-        this.childWeightinKg = this.childDetail.weight;
-        if (this.childDetail.selectedWeightUnit.DisplayValue === "lb") {
-            this.childWeightinKg = (this.childWeightinKg * 0.45359237).toFixed(2);
-        }
 
         let percentileArrayValues = [];
         for (var key in percentileValues) {
@@ -112,6 +121,9 @@ export class GrowthChart implements OnInit {
         return Math.abs(month);
     }
 
+    onWeightUnitChange() {
+        this.ConvertWeightInKg();
+    }
     readExcelSheet(gender: string, month: number) {
         if (gender === 'Male') {
             this.filePath = filePathWeightPercentileBoys;
@@ -140,19 +152,6 @@ export class GrowthChart implements OnInit {
             });
     }
 }
-
-export class ChildDetail {
-    childName: string = "";
-    gender: string = "";
-    dateOfBirth: Date | undefined;
-    dateOfMeasurement: Date | undefined;
-    weight: DecimalPipe | undefined;
-    selectedWeightUnit: any;
-    weightUnitMatric: any;
-
-
-}
-
 
 export const WeighUnitItems = [
     { Id: 1, DisplayValue: 'kg' },
