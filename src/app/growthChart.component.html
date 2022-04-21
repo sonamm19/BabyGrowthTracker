@@ -7,9 +7,8 @@
 </head>
 
 <body>
-
-    <h3>Baby Weight percentile Tracker</h3>
     <form class="w-25 p-3" #login="ngForm" name="login" (ngSubmit)="Submit(login)">
+        <h3 class="mb-3">Baby Weight Percentile Tracker</h3>
         <div class="mb-3">
             <span class="text-danger p-1">*</span>
             <label for="childName" class="form-label">Child's
@@ -107,8 +106,8 @@
 
     </form>
 
-    <div *ngIf="this.submitted && this.percentile != undefined">
-        <div class="p-3 mb-1"><strong>{{this.childName}}</strong> is {{this.ageInMonth}}
+    <div class="p-3" *ngIf="this.submitted && this.percentile != undefined">
+        <div><strong>{{this.childName}}</strong> is {{this.ageInMonth}}
             month old and is in the <strong>{{this.percentile}}</strong> percentile
             for
             {{this.gender === 'Male' ? 'his' : 'her'}}
@@ -129,54 +128,3 @@
 </body>
 
 </html>
-
-
-
-
-
-<!-- 
-    <table class="table" *ngIf="submitted">
-        <thead>
-            <tr>
-                <th class="col-1">Child Name</th>
-                <th class="col-1">Gender</th>
-                <th class="col-1">Date of Birth</th>
-                <th class="col-1">Date of Measurement</th>
-                <th class="col-1">Weight</th>
-
-            </tr>
-        </thead>
-        <tr>
-            <td class="col-1">{{childName}}</td>
-            <td class="col-1">{{gender}}</td>
-            <td class="col-1">{{dateOfBirth}}</td>
-            <td class="col-1">{{dateOfMeasurement}}</td>
-            <td class="col-1">{{weight}}({{selectedWeightUnit.DisplayValue}})
-                <span *ngIf="selectedWeightUnit.DisplayValue === 'lb'">{{childWeightinKg}}(kg)</span>
-            </td>
-        </tr>
-    </table>
-
-    
-    <div class="studentList" *ngFor="let item of dataValues">
-        <ul>
-            <li>{{ item.value }}</li>
-
-        </ul>
-    </div> -->
-
-
-
-<!-- <ul *ngFor="let data of  this.monthBasedPercentile ">
-        <li *ngFor="let child of data  | keyvalue">
-
-            {{child.key}} : <strong>{{child.value}}</strong>
-
-        </li>
-        {{data |json}}
-
-    </ul>
-
-    <ul *ngFor="let data of  this.monthBasedPercentile  | keyvalue ">
-        {{data.key}} : <strong>{{data.value}}</strong>
-    </ul> -->

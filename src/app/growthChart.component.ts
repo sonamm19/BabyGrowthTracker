@@ -52,19 +52,14 @@ export class GrowthChart implements OnInit {
         this.gender = "Male";
         this.weightUnitMatric = WeighUnitItems;
         this.selectedWeightUnit = this.weightUnitMatric[0];
-        this.childName = 'xyz';
-        this.weight = '8';
         this.dateOfMeasurement = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
-        this.dateOfBirth = this.datePipe.transform(new Date("September 14, 2021"), 'yyyy-MM-dd');
     }
 
 
 
     Submit(login: any) {
 
-
         if (login.valid) {
-
             if (this.dateOfBirth === undefined)
                 return;
 
@@ -76,14 +71,16 @@ export class GrowthChart implements OnInit {
 
             this.ConvertWeightInKg();
 
-            var promisePercentile = this.readExcelSheet(this.gender, this.ageInMonth);
+            var promisePercentile = this.FindPercentile(this.gender, this.ageInMonth);
 
             promisePercentile.then((value) => {
                 this.percentile = value;
                 this.AnimateToGauge(Number(value));
-                console.log(" percentile value " + value);
             }).catch((err) => {
+                alert(err.message);
                 console.log(err);
+                this.submitted = false;
+                return;
             });
 
 
@@ -97,7 +94,7 @@ export class GrowthChart implements OnInit {
 
     //#region Main Function
 
-    async readExcelSheet(gender: string, month: number): Promise<any> {
+    async FindPercentile(gender: string, month: number): Promise<any> {
 
         if (gender === 'Male') {
             this.filePath = filePathWeightPercentileBoys;
@@ -106,6 +103,7 @@ export class GrowthChart implements OnInit {
             this.filePath = filePathWeightPercentileGirls;
         }
 
+        //Read Excel
         let dataJson;
         const data = await lastValueFrom(this.httpClient.get(filePathWeightPercentileBoys, { responseType: 'blob' }))
         const reader: FileReader = new FileReader();
@@ -123,12 +121,16 @@ export class GrowthChart implements OnInit {
                 this.monthBasedPercentile = dataJson[month];
 
                 // Calculate percentile based on age
-                this.percentile = this.findPercentile(this.monthBasedPercentile)
-                if (this.percentile != undefined) {
+                this.percentile = this.CalculatePercentile(this.monthBasedPercentile)
+                console.log("this.percentile " + this.percentile);
+                if (this.percentile != undefined && this.percentile >= 0 && this.percentile <= 100) {
                     resolve(this.percentile);
                 }
                 else {
-                    reject(new Error('Error in calculating percentage'));
+                    if (this.percentile < 0 || this.percentile > 100)
+                        reject(new Error('Percentage is in invalid range. please input correct data'));
+                    else
+                        reject(new Error('Error in calculating percentage'));
                 }
 
             };
@@ -237,7 +239,7 @@ export class GrowthChart implements OnInit {
        |P01  P1	P3	 P5	  P10|
        |2	  2.3	2.5	 2.6  2.8|
        */
-    findPercentile(percentileValues: any) {
+    CalculatePercentile(percentileValues: any) {
 
         if (percentileValues === undefined)
             return 0;
@@ -251,7 +253,7 @@ export class GrowthChart implements OnInit {
         var valueItem = this.GetClosetpercentileValue(this.childWeightinKg, percentileArrayValues);
 
 
-        // Find percentile based on it's value
+        // Find actual percentile based on it's value
         var keyItem = Object.keys(percentileValues).find(key => percentileValues[key] === valueItem);
         if (keyItem == undefined) {
             return 0;
