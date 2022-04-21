@@ -3,16 +3,27 @@ import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import * as XLSX from 'xlsx';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
+import { IgxLinearGaugeComponent } from "igniteui-angular-gauges";
+import { IgxLinearGraphRangeComponent } from "igniteui-angular-gauges";
+import { LinearGraphNeedleShape } from "igniteui-angular-gauges";
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+
+type AOA = any[][];
+
+
 @Component({
 
     selector: 'growth-chart',
-    templateUrl: './growthChart.component.html'
+    templateUrl: './growthChart.component.html',
 })
 
 
 export class GrowthChart implements OnInit {
 
     @ViewChild('login', { static: true }) login: NgForm | undefined;
+    @ViewChild("linearGauge", { static: true })
+
+    public linearGauge: IgxLinearGaugeComponent;
 
     // Child Details
     childName: string = "";
@@ -23,15 +34,14 @@ export class GrowthChart implements OnInit {
     selectedWeightUnit: any;
     weightUnitMatric: any;
 
-    public selectedValue: any;
+    selectedValue: any;
     filePath: string = "";
     submitted: boolean = false;
     childWeightinKg: any = 0;
-    percentile: string = "";
+    percentile: number;
     percentileResult: string = "";
     monthBasedPercentile: any;
     ageInMonth: any;
-    growthChart: GrowthChart = {} as GrowthChart;
     maxDate: Date = new Date();
 
     constructor(private httpClient: HttpClient, public datePipe: DatePipe) {
@@ -42,13 +52,17 @@ export class GrowthChart implements OnInit {
         this.gender = "Male";
         this.weightUnitMatric = WeighUnitItems;
         this.selectedWeightUnit = this.weightUnitMatric[0];
-
+        this.childName = 'xyz';
+        this.weight = '8';
         this.dateOfMeasurement = this.datePipe.transform(new Date(), 'yyyy-MM-dd');
+        this.dateOfBirth = this.datePipe.transform(new Date("September 14, 2021"), 'yyyy-MM-dd');
     }
+
+
 
     Submit(login: any) {
 
-        console.log(login);
+
         if (login.valid) {
 
             if (this.dateOfBirth === undefined)
@@ -59,27 +73,152 @@ export class GrowthChart implements OnInit {
                 alert("Baby's age should not be more than 5 years");
                 return;
             }
+
             this.ConvertWeightInKg();
-            this.readExcelSheet(this.gender, this.ageInMonth);
+
+            var promisePercentile = this.readExcelSheet(this.gender, this.ageInMonth);
+
+            promisePercentile.then((value) => {
+                this.percentile = value;
+                this.AnimateToGauge(Number(value));
+                console.log(" percentile value " + value);
+            }).catch((err) => {
+                console.log(err);
+            });
+
 
             console.log(login);
             console.log(this.childName + " " + this.dateOfBirth + " " + this.dateOfMeasurement + " " + this.gender
                 + " " + this.weight + "(" + this.selectedWeightUnit.DisplayValue + ")");
-
-            console.log(this.monthBasedPercentile);
             this.submitted = true;
         }
     }
 
 
-    GetClosetpercentileValue(weight: any, arr: number[]) {
+    //#region Main Function
 
-        if (arr === undefined || arr.length == 0) {
-            return 0;
+    async readExcelSheet(gender: string, month: number): Promise<any> {
+
+        if (gender === 'Male') {
+            this.filePath = filePathWeightPercentileBoys;
         }
-        const output = arr.reduce((prev: number, curr: number) => Math.abs(curr - weight) < Math.abs(prev - weight) ? curr : prev);
+        else {
+            this.filePath = filePathWeightPercentileGirls;
+        }
 
-        return output;
+        let dataJson;
+        const data = await lastValueFrom(this.httpClient.get(filePathWeightPercentileBoys, { responseType: 'blob' }))
+        const reader: FileReader = new FileReader();
+        return new Promise((resolve, reject) => {
+            reader.onload = (e: any) => {
+                /* read workbook */
+                const bstr: string = e.target.result;
+                const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
+
+                /* grab first sheet */
+                const wsname: string = wb.SheetNames[0];
+                const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+
+                dataJson = XLSX.utils.sheet_to_json(ws);
+                this.monthBasedPercentile = dataJson[month];
+
+                // Calculate percentile based on age
+                this.percentile = this.findPercentile(this.monthBasedPercentile)
+                if (this.percentile != undefined) {
+                    resolve(this.percentile);
+                }
+                else {
+                    reject(new Error('Error in calculating percentage'));
+                }
+
+            };
+            reader.readAsBinaryString(data);
+        });
+    }
+
+    // Show percentile indicator
+    public AnimateToGauge(val: number): void {
+        // linear gauge requires settings for these properties:
+        this.linearGauge.minimumValue = 0;
+        this.linearGauge.maximumValue = 100;
+        this.linearGauge.value = val;
+        this.linearGauge.interval = 10;
+
+        // setting custom appearance of labels
+        this.linearGauge.labelInterval = 10;
+        this.linearGauge.labelExtent = 0.05;
+
+        // setting custom appearance of needle
+        this.linearGauge.isNeedleDraggingEnabled = true;
+        this.linearGauge.needleShape = LinearGraphNeedleShape.Needle;
+        this.linearGauge.needleBrush = "#79797a";
+        this.linearGauge.needleOutline = "#ffffffff";
+        this.linearGauge.needleStrokeThickness = 1;
+        this.linearGauge.needleOuterExtent = 0.9;
+        this.linearGauge.needleInnerExtent = 0.3;
+
+        // setting custom appearance of major/minor ticks
+        this.linearGauge.minorTickCount = 5;
+        this.linearGauge.minorTickEndExtent = 0.10;
+        this.linearGauge.minorTickStartExtent = 0.20;
+        this.linearGauge.minorTickStrokeThickness = 1;
+        this.linearGauge.tickStartExtent = 0.25;
+        this.linearGauge.tickEndExtent = 0.05;
+        this.linearGauge.tickStrokeThickness = 2;
+
+        // setting custom gauge ranges
+        const range1 = new IgxLinearGraphRangeComponent();
+        range1.startValue = 0;
+        range1.endValue = 5;
+        const range2 = new IgxLinearGraphRangeComponent();
+        range2.startValue = 5;
+        range2.endValue = 85;
+        const range3 = new IgxLinearGraphRangeComponent();
+        range3.startValue = 85;
+        range3.endValue = 95;
+        const range4 = new IgxLinearGraphRangeComponent();
+        range4.startValue = 95;
+        range4.endValue = 100;
+
+        this.linearGauge.rangeBrushes = ["#FF6347", "#9ACD32", "#FFD700", "#FF6347"];
+        this.linearGauge.rangeOutlines = ["#FF6347", "#9ACD32", "#FFD700", "#FF6347"];
+        this.linearGauge.ranges.clear();
+        this.linearGauge.ranges.add(range1);
+        this.linearGauge.ranges.add(range2);
+        this.linearGauge.ranges.add(range3);
+        this.linearGauge.ranges.add(range4);
+
+        // setting extent of all gauge ranges
+        for (let i = 0; i < this.linearGauge.ranges.count; i++) {
+            const range = this.linearGauge.ranges.item(i);
+            range.innerStartExtent = 0.075;
+            range.innerEndExtent = 0.075;
+            range.outerStartExtent = 0.65;
+            range.outerEndExtent = 0.65;
+        }
+
+        // setting extent of gauge scale
+        this.linearGauge.scaleStrokeThickness = 0;
+        this.linearGauge.scaleBrush = "#ffffff";
+        this.linearGauge.scaleOutline = "#dbdbdb";
+        this.linearGauge.scaleInnerExtent = 0.075;
+        this.linearGauge.scaleOuterExtent = 0.85;
+        this.linearGauge.scaleStartExtent = 0.05;
+        this.linearGauge.scaleEndExtent = 0.95;
+
+        // setting appearance of backing fill and outline
+        this.linearGauge.backingBrush = "#ffffff";
+        this.linearGauge.backingOutline = "#d1d1d1";
+        this.linearGauge.backingStrokeThickness = 0;
+        this.linearGauge.height = "100px";
+        this.linearGauge.width = "400px";
+    }
+    //#endregion
+
+    //#region Supporting Function
+
+    onWeightUnitChange() {
+        this.ConvertWeightInKg();
     }
 
     ConvertWeightInKg() {
@@ -89,14 +228,19 @@ export class GrowthChart implements OnInit {
         }
     }
 
+    calculateMonthfromDOB(birthdate: Date) {
+        var month = new Date().getMonth() - new Date(birthdate).getMonth() + (12 * (new Date().getFullYear() - new Date(birthdate).getFullYear()));
+        return Math.abs(month);
+    }
+
     /*
-    |P01  P1	P3	 P5	  P10|
-    |2	  2.3	2.5	 2.6  2.8|
-    */
+       |P01  P1	P3	 P5	  P10|
+       |2	  2.3	2.5	 2.6  2.8|
+       */
     findPercentile(percentileValues: any) {
 
         if (percentileValues === undefined)
-            return false;
+            return 0;
 
         let percentileArrayValues = [];
         for (var key in percentileValues) {
@@ -110,47 +254,24 @@ export class GrowthChart implements OnInit {
         // Find percentile based on it's value
         var keyItem = Object.keys(percentileValues).find(key => percentileValues[key] === valueItem);
         if (keyItem == undefined) {
-            return false;
+            return 0;
         }
-        this.percentile = keyItem?.toString().replace('P', '');
-        return true;
+        return Number(keyItem?.toString().replace('P', ''));
     }
 
-    calculateMonthfromDOB(birthdate: Date) {
-        var month = new Date().getMonth() - new Date(birthdate).getMonth() + (12 * (new Date().getFullYear() - new Date(birthdate).getFullYear()));
-        return Math.abs(month);
-    }
+    GetClosetpercentileValue(weight: any, arr: number[]) {
 
-    onWeightUnitChange() {
-        this.ConvertWeightInKg();
-    }
-    readExcelSheet(gender: string, month: number) {
-        if (gender === 'Male') {
-            this.filePath = filePathWeightPercentileBoys;
+        if (arr === undefined || arr.length == 0) {
+            return 0;
         }
-        else {
-            this.filePath = filePathWeightPercentileGirls;
-        }
-        this.httpClient.get(this.filePath, { responseType: 'blob' })
-            .subscribe((data: any) => {
-                const reader: FileReader = new FileReader();
-                let dataJson1;
+        const output = arr.reduce((prev: number, curr: number) => Math.abs(curr - weight) < Math.abs(prev - weight) ? curr : prev);
 
-                reader.onload = (e: any) => {
-                    const bstr: string = e.target.result;
-                    const wb: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
-
-                    /* grab first sheet */
-                    const wsname1: string = wb.SheetNames[0];
-                    const ws1: XLSX.WorkSheet = wb.Sheets[wsname1];
-
-                    /* save data to 'monthBasedPercentile'*/
-                    dataJson1 = XLSX.utils.sheet_to_json(ws1);
-                    this.monthBasedPercentile = dataJson1[month];
-                };
-                reader.readAsBinaryString(data);
-            });
+        return output;
     }
+    //#endregion
+
+
+
 }
 
 export const WeighUnitItems = [

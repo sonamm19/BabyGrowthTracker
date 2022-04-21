@@ -7,10 +7,9 @@ import { Component } from "@angular/core";
 
     selector: 'pm-root',
     template: ` <div class="page-header">
-    <h3>{{Title}}</h3>
     <growth-chart></growth-chart>`
 })
 
 export class AppComponent {
-    Title: string = "Baby weight growth tracker";
+
 }

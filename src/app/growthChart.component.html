@@ -2,12 +2,13 @@
 <html lang="en">
 
 <head>
-    <title>babyGrowthTracker</title>
+    <title>babyWeightpercentileTracker</title>
+
 </head>
 
 <body>
 
-
+    <h3>Baby Weight percentile Tracker</h3>
     <form class="w-25 p-3" #login="ngForm" name="login" (ngSubmit)="Submit(login)">
         <div class="mb-3">
             <span class="text-danger p-1">*</span>
@@ -75,9 +76,6 @@
             <div class="text-danger" *ngIf="!measurementDate.untouched && measurementDate.errors?.['required']">
                 Select measurement date
             </div>
-            <!-- <div class="text-danger" *ngIf="measurementDate.value < birthDate.value">
-                measurement date should be after birth date
-            </div> -->
         </div>
 
         <div class="mb-3">
@@ -109,21 +107,24 @@
 
     </form>
 
-    <div class="mt-5 .text-primary" *ngIf="!login.invalid && findPercentile(this.monthBasedPercentile)">
-        <h5 class="p-3 mb-2 bg-info text-white"><strong>{{this.childName}}</strong> is {{this.ageInMonth}}
+    <div *ngIf="this.submitted && this.percentile != undefined">
+        <div class="p-3 mb-1"><strong>{{this.childName}}</strong> is {{this.ageInMonth}}
             month old and is in the <strong>{{this.percentile}}</strong> percentile
             for
             {{this.gender === 'Male' ? 'his' : 'her'}}
             weight which is
             {{this.childWeightinKg}}kg
-        </h5>
-        <Span class="mt-2">
-            Note: The lower the percentile number, the smaller the child is. For example, if a 6 month-old boy's weight
-            is
-            in the 10th percentile, that means that 10% of boys that age weigh less than he does and 90% of 6 month-old
-            boys
-            weigh more.
-        </Span>
+            <br />
+
+            <i>Note: Green indicates healthy weight (5th to <85th percentile), yellow indicates at risk for overweight
+                    (85th to <95th percentile), and red indicates underweight (<5th percentile) or overweight (now
+                    called obese; ≥95th percentile) </i>
+        </div>
+    </div>
+
+    <div class="p-1 mb-0">
+        <igx-linear-gauge #linearGauge>
+        </igx-linear-gauge>
     </div>
 </body>
 
