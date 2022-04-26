@@ -35,9 +35,9 @@ describe('GrowthChartComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should render title in h3 tag', () => {
+    it('should render title in h4 tag', () => {
         const compiled = fixture.nativeElement as HTMLElement;
-        expect(compiled.querySelector('h3')?.textContent).toContain('Baby Weight Percentile Tracker');
+        expect(compiled.querySelector('h4')?.textContent).toContain('Baby Weight Percentile Tracker');
     });
 
     describe('#childName', () => {

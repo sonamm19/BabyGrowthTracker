@@ -7,14 +7,14 @@
 </head>
 
 <body>
-    <div class="alert alert-danger" role="alert" *ngIf="this.errorMessage != ''">
+    <div class="alert alert-danger mb-3" role="alert" *ngIf="this.errorMessage != ''">
         {{errorMessage}}
     </div>
 
+    <h4 class="mb-3 p-1">Baby Weight Percentile Tracker</h4>
     <form class="w-25 p-3" #login="ngForm" name="login" (ngSubmit)="Submit(login)">
 
-        <h3 class="mb-3 w-100">Baby Weight Percentile Tracker</h3>
-        <div class="mb-3">
+        <div class="mb-2">
             <span class="text-danger p-1">*</span>
             <label for="childName" class="form-label">Child's
                 name</label>
@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-2">
             <span class="text-danger p-1">*</span>
             <label for="childSex" class="form-label">Sex</label>
             <div class="row">
@@ -60,7 +60,7 @@
         </div>
 
 
-        <div class="mb-3">
+        <div class="mb-2">
             <span class="text-danger p-1">*</span>
             <label for="birthDate" class="form-label">Date of birth</label>
             <input type="date" #birthDateField="ngModel" class="form-control" name="birthDate" id="birthDate"
@@ -70,7 +70,7 @@
                 date</div>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-2">
             <span class="text-danger p-1">*</span>
             <label for="measurementDate" class="form-label">Date of measurement</label>
             <input type="date" #measurementDate="ngModel" class="form-control" name="measurementDate"
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-2">
             <span class="text-danger p-1">*</span>
             <label for="weight" class="form-label">Weight</label>
 
