@@ -247,15 +247,17 @@ export class GrowthChart implements OnInit {
 
         let percentileArrayValues = [];
         for (var key in percentileValues) {
-            if (key.startsWith("P")) {  // ignore Month
+            if (key.toString() != "Month") {  // ignore Month
                 percentileArrayValues.push(percentileValues[key]);
             }
         }
         var valueItem = this.GetClosetpercentileValue(this.childWeightinKg, percentileArrayValues);
 
-
         // Find actual percentile based on it's value
-        var keyItem = Object.keys(percentileValues).find(key => percentileValues[key] === valueItem);
+        var keyItem = Object.keys(percentileValues)
+            .filter(key => key.startsWith('P'))
+            .find(key => percentileValues[key] === valueItem);
+
         if (keyItem == undefined) {
             return 0;
         }
