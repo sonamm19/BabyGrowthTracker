@@ -1,18 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { GrowthChart } from './growthChart.component';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { IgxButtonModule } from 'igniteui-angular';
+import { ChartsModule } from 'ng2-charts';
+import { IgxLinearGaugeModule } from 'igniteui-angular-gauges';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('GrowthChartComponent', () => {
     let fixture: ComponentFixture<GrowthChart>;
     let component: GrowthChart;
     beforeEach(async () => {
         TestBed.configureTestingModule({
-            imports: [HttpClientTestingModule, FormsModule],
+            imports: [HttpClientTestingModule,
+                FormsModule,
+                ChartsModule,
+                IgxLinearGaugeModule,
+                IgxButtonModule],
             providers: [DatePipe],
-            declarations: [GrowthChart]
+            declarations: [GrowthChart],
+            schemas: [CUSTOM_ELEMENTS_SCHEMA]
         });
 
         fixture = TestBed.createComponent(GrowthChart);
@@ -24,6 +33,11 @@ describe('GrowthChartComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should render title in h3 tag', () => {
+        const compiled = fixture.nativeElement as HTMLElement;
+        expect(compiled.querySelector('h3')?.textContent).toContain('Baby Weight Percentile Tracker');
     });
 
     describe('#childName', () => {
@@ -107,5 +121,13 @@ describe('GrowthChartComponent', () => {
             let maxDate = fixture.debugElement.query(By.css('#measurementDate')).nativeElement.max;
             expect(measurementDate.value).toBe(maxDate);
         });
+    });
+
+    it('should called button click event', () => {
+        spyOn(component, 'Submit');
+
+        let button = fixture.debugElement.nativeElement.querySelector('button');
+        button.click();
+        expect(component.Submit).toHaveBeenCalled();
     });
 });

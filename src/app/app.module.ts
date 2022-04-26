@@ -9,7 +9,6 @@ import { ReactiveForm } from './reactiveForm.component';
 import { BubbleChartComponent } from './bubble-chart/bubble-chart.component';
 import { ChartsModule } from 'ng2-charts';
 import { DatePipe } from '@angular/common';
-import { LinearGaugeAnimationComponent } from './linear-gauge-animation.component';
 import { IgxLinearGaugeModule } from 'igniteui-angular-gauges';
 import { IgxButtonModule } from "igniteui-angular";
 

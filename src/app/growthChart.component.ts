@@ -57,7 +57,6 @@ export class GrowthChart implements OnInit {
 
 
     Submit(login: any) {
-
         if (login.valid) {
             if (this.dateOfBirth === undefined)
                 return;
