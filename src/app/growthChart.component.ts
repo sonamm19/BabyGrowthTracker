@@ -6,15 +6,12 @@ import { NgForm } from '@angular/forms';
 import { IgxLinearGaugeComponent } from "igniteui-angular-gauges";
 import { IgxLinearGraphRangeComponent } from "igniteui-angular-gauges";
 import { LinearGraphNeedleShape } from "igniteui-angular-gauges";
-import { firstValueFrom, lastValueFrom } from 'rxjs';
-
-type AOA = any[][];
-
+import { lastValueFrom } from 'rxjs';
 
 @Component({
 
     selector: 'growth-chart',
-    templateUrl: './growthChart.component.html',
+    templateUrl: './growthChart.component.html'
 })
 
 
@@ -43,6 +40,8 @@ export class GrowthChart implements OnInit {
     monthBasedPercentile: any;
     ageInMonth: any;
     maxDate: Date = new Date();
+    showgauge: boolean = true;
+    errorMessage: string = "";
 
     constructor(private httpClient: HttpClient, public datePipe: DatePipe) {
         console.log("inside constructor" + this.login);
@@ -74,12 +73,15 @@ export class GrowthChart implements OnInit {
             var promisePercentile = this.FindPercentile(this.gender, this.ageInMonth);
 
             promisePercentile.then((value) => {
+                this.showgauge = true;
                 this.percentile = value;
+                this.errorMessage = "";
                 this.AnimateToGauge(Number(value));
             }).catch((err) => {
-                alert(err.message);
-                console.log(err);
+                this.showgauge = false;
+                this.errorMessage = err.name + ": " + err.statusText + ". " + err.message;
                 this.submitted = false;
+                console.log(err);
                 return;
             });
 
@@ -105,7 +107,7 @@ export class GrowthChart implements OnInit {
 
         //Read Excel
         let dataJson;
-        const data = await lastValueFrom(this.httpClient.get(filePathWeightPercentileBoys, { responseType: 'blob' }))
+        const data = await lastValueFrom(this.httpClient.get(this.filePath, { responseType: 'blob' }))
         const reader: FileReader = new FileReader();
         return new Promise((resolve, reject) => {
             reader.onload = (e: any) => {
@@ -128,9 +130,9 @@ export class GrowthChart implements OnInit {
                 }
                 else {
                     if (this.percentile < 0 || this.percentile > 100)
-                        reject(new Error('Percentage is in invalid range. please input correct data'));
+                        reject(new Error('Percentage is in invalid range. Please enter correct values.'));
                     else
-                        reject(new Error('Error in calculating percentage'));
+                        reject(new Error('Error in calculating percentile.'));
                 }
 
             };

@@ -2,13 +2,18 @@
 <html lang="en">
 
 <head>
-    <title>babyWeightpercentileTracker</title>
+    <title>babyWeightPercentileTracker</title>
 
 </head>
 
 <body>
+    <div class="alert alert-danger" role="alert" *ngIf="this.errorMessage != ''">
+        {{errorMessage}}
+    </div>
+
     <form class="w-25 p-3" #login="ngForm" name="login" (ngSubmit)="Submit(login)">
-        <h3 class="mb-3 w-70">Baby Weight Percentile Tracker</h3>
+
+        <h3 class="mb-3 w-100">Baby Weight Percentile Tracker</h3>
         <div class="mb-3">
             <span class="text-danger p-1">*</span>
             <label for="childName" class="form-label">Child's
@@ -120,11 +125,12 @@
                     called obese; ≥95th percentile) </i>
         </div>
     </div>
-
-    <div class="p-1 mb-0">
+    <div class="p-1 mb-0" [ngStyle]="this.showgauge ?{'display': 'block'} : {'display': 'none'}">
         <igx-linear-gauge #linearGauge>
         </igx-linear-gauge>
     </div>
+
+
 </body>
 
 </html>
