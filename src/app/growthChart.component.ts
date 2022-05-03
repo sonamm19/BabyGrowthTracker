@@ -64,6 +64,8 @@ export class GrowthChart implements OnInit {
             this.ageInMonth = this.calculateMonthfromDOB(this.dateOfBirth);
             if (this.ageInMonth > 60) {
                 alert("Baby's age should not be more than 5 years");
+                this.submitted = false;
+                this.showgauge = false;
                 return;
             }
 
